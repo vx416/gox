@@ -1,6 +1,7 @@
 package log
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -128,6 +129,14 @@ func (l *ZapAdapter) Printf(msg string, args ...interface{}) {
 	s := l.zaplog.Sugar()
 	s.Infof(msg, args)
 	defer s.Sync()
+}
+
+func (l *ZapAdapter) Attach(ctx context.Context) context.Context {
+	return Attach(ctx, l)
+}
+
+func (l *ZapAdapter) Caller(stack int) Logger {
+	return l.clone(l.zaplog.WithOptions(zap.AddCallerSkip(stack)))
 }
 
 func (l *ZapAdapter) clone(zaplog *zap.Logger) *ZapAdapter {

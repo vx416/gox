@@ -8,7 +8,11 @@ import (
 	"github.com/ory/dockertest"
 )
 
-func (builder *Builder) RunRedis(name string) (*redis.Client, error) {
+type Redis struct {
+	Addr string
+}
+
+func (builder *Builder) RunRedis(name string, port ...string) (*Redis, error) {
 	container, err := builder.FindContainer(name)
 	if err != nil {
 		return nil, err
@@ -16,14 +20,10 @@ func (builder *Builder) RunRedis(name string) (*redis.Client, error) {
 
 	if container != nil {
 		builder.containerIDs[container.ID] = true
-		client := redis.NewClient(&redis.Options{
+		r := &Redis{
 			Addr: fmt.Sprintf("localhost:%d", container.Ports[0].PublicPort),
-		})
-		err := client.Ping(context.Background()).Err()
-		if err != nil {
-			return nil, err
 		}
-		return client, nil
+		return r, nil
 	}
 
 	resource, err := builder.RunWithOptions(&dockertest.RunOptions{Repository: "redis", Tag: "6.0.9-alpine", Name: name})
@@ -32,19 +32,14 @@ func (builder *Builder) RunRedis(name string) (*redis.Client, error) {
 	}
 
 	builder.containerIDs[resource.Container.ID] = true
+	r := &Redis{
+		Addr: fmt.Sprintf("localhost:%s", resource.GetPort("6379/tcp")),
+	}
 
-	return builder.BuildRedisClient(resource)
-}
-
-func (builder *Builder) BuildRedisClient(resource *dockertest.Resource) (*redis.Client, error) {
-	var (
-		client *redis.Client
-		ctx    = context.Background()
-	)
-
-	err := builder.Retry(func() error {
-		client = redis.NewClient(&redis.Options{
-			Addr: fmt.Sprintf("localhost:%s", resource.GetPort("6379/tcp")),
+	err = builder.Retry(func() error {
+		ctx := context.Background()
+		client := redis.NewClient(&redis.Options{
+			Addr: r.Addr,
 		})
 
 		return client.Ping(ctx).Err()
@@ -52,6 +47,5 @@ func (builder *Builder) BuildRedisClient(resource *dockertest.Resource) (*redis.
 	if err != nil {
 		return nil, err
 	}
-
-	return client, nil
+	return r, nil
 }

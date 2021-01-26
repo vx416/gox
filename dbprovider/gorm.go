@@ -10,6 +10,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // GormProvider gorm adapter for db provider
@@ -17,12 +18,6 @@ type GormProvider interface {
 	DBProvider
 	GetDB(ctx context.Context) *gorm.DB
 	Lock(ctx context.Context, write bool) *gorm.DB
-}
-
-func GoroConfig() *gorm.Config {
-	return &gorm.Config{
-		
-	}
 }
 
 // NewGorm new gorm db provider
@@ -79,13 +74,10 @@ func (db *gormDB) DB() (*sql.DB, error) {
 
 // forUpdate for transactions rollback
 func (db *gormDB) Lock(ctx context.Context, write bool) *gorm.DB {
-	tx := db.GetDB(ctx)
 	if write {
-		tx = tx.Set("gorm:query_option", "FOR UPDATE")
-	} else {
-		tx = tx.Set("gorm:query_option", "LOCK IN SHARE MODE")
+		return db.GetDB(ctx).Clauses(clause.Locking{Strength: "UPDATE", Table: clause.Table{Name: clause.CurrentTable}})
 	}
-	return tx
+	return db.GetDB(ctx).Clauses(clause.Locking{Strength: "SHARE", Table: clause.Table{Name: clause.CurrentTable}})
 }
 
 func (db *gormDB) getTx(ctx context.Context) *gorm.DB {

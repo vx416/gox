@@ -28,7 +28,9 @@ type Logger interface {
 	Warnf(msg string, args ...interface{})
 	Errorf(msg string, args ...interface{})
 	Fatalf(msg string, args ...interface{})
+	Caller(stack int) Logger
 
+	Attach(ctx context.Context) context.Context
 	Printf(msg string, args ...interface{})
 }
 
