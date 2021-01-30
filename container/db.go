@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
+	_ "github.com/go-sql-driver/mysql"
+
+	_ "github.com/lib/pq"
 	"github.com/ory/dockertest"
 	dc "github.com/ory/dockertest/docker"
 )
@@ -74,6 +77,7 @@ func (builder *Builder) RunPg(name string, dbName string, port ...string) (*DB, 
 	err = builder.Retry(func() error {
 		db, err := sql.Open("postgres", dsn)
 		if err != nil {
+			fmt.Println("testing, err", err)
 			return err
 		}
 		defer db.Close()
