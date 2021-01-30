@@ -83,9 +83,9 @@ func (db *gormDB) Lock(ctx context.Context, write bool) *gorm.DB {
 func (db *gormDB) getTx(ctx context.Context) *gorm.DB {
 	tx, ok := ctx.Value(TxKey{}).(*gorm.DB)
 	if !ok {
-		return tx
+		return nil
 	}
-	return nil
+	return tx
 }
 
 func (db *gormDB) GetDB(ctx context.Context) *gorm.DB {
