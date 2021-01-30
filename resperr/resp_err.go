@@ -10,12 +10,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewHttpErr(status int) error {
-	return errors.WithStack(&ErrResponse{
+func NewRespErr(status int, msg ...string) error {
+	errResp := &ErrResponse{
 		HTTPStatus: status,
-		Message:    http.StatusText(status),
 		Details:    make(map[string]interface{}),
-	})
+	}
+
+	if len(msg) == 1 {
+		errResp.Message = msg[0]
+	} else {
+		errResp.Message = http.StatusText(status)
+	}
+
+	return errors.WithStack(errResp)
 }
 
 // ErrResponse error response
