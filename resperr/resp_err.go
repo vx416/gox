@@ -1,4 +1,4 @@
-package errors
+package resperr
 
 import (
 	"encoding/json"
@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func NewHttpErr(status int) error {
-	return WithStack(&ErrResponse{
+	return errors.WithStack(&ErrResponse{
 		HTTPStatus: status,
 		Message:    http.StatusText(status),
 		Details:    make(map[string]interface{}),
@@ -59,7 +61,7 @@ func (e *ErrResponse) AddDetail(key string, val interface{}) {
 }
 
 func ToErrResponse(err error) *ErrResponse {
-	cause := Cause(err)
+	cause := errors.Cause(err)
 	errResp, ok := cause.(*ErrResponse)
 	if !ok {
 		return &ErrResponse{
