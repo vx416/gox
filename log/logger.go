@@ -7,11 +7,7 @@ type (
 	LoggerKey struct{}
 )
 
-var _logger Logger
-
-func init() {
-	_logger = newDefaultZap()
-}
+var _logger = newDefaultZap()
 
 // Logger interface
 type Logger interface {
