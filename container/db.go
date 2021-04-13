@@ -48,7 +48,7 @@ func (builder *Builder) RunPg(name string, dbName string, port ...string) (*DB, 
 	if len(port) == 1 {
 		options.PortBindings = make(map[dc.Port][]dc.PortBinding)
 		options.PortBindings[dc.Port("5432/tcp")] = []dc.PortBinding{
-			dc.PortBinding{
+			{
 				HostPort: port[0],
 			}}
 	}
@@ -120,7 +120,7 @@ func (builder *Builder) RunMysql(name string, dbName string, port ...string) (*D
 	if len(port) == 1 {
 		options.PortBindings = make(map[dc.Port][]dc.PortBinding)
 		options.PortBindings[dc.Port("3306/tcp")] = []dc.PortBinding{
-			dc.PortBinding{
+			{
 				HostPort: port[0],
 			}}
 	}

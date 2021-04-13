@@ -20,7 +20,7 @@ func (builder *Builder) FindContainer(containerName string) (*docker.APIContaine
 	containers, err := builder.Client.ListContainers(docker.ListContainersOptions{
 		All: true,
 		Filters: map[string][]string{
-			"name": []string{containerName},
+			"name": {containerName},
 		},
 	})
 	if err != nil {
